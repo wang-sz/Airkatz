@@ -910,6 +910,22 @@ uint16_t ST7735_SwapColor(uint16_t x) {
 }
 
 
+
+// ST_Convert
+// turn 8bit bgr into 16 bit bgr
+uint16_t ST7735_Convert(uint8_t color){
+  color = color<<1;
+  uint16_t bgrCol = 0;
+  bgrCol |= ((color&0xC0)<<8);    // B
+  bgrCol |= ((color&0xC0)<<6);
+  bgrCol |= ((color&0x80)<<4);
+  bgrCol |= ((color&0x38)<<5);    // G
+  bgrCol |= ((color&0x38)<<2);
+  bgrCol |= ((color&0x07)<<2);    // R
+  bgrCol |= ((color&0x06)>>1);
+  return bgrCol;
+}
+
 //------------ST7735_DrawBitmap------------
 // Displays a 16-bit color BMP image.  A bitmap file that is created
 // by a PC image processing program has a header and may be padded
@@ -929,7 +945,8 @@ uint16_t ST7735_SwapColor(uint16_t x) {
 //        h     number of pixels tall
 // Output: none
 // Must be less than or equal to 128 pixels wide by 160 pixels high
-void ST7735_DrawBitmap(int16_t x, int16_t y, const uint16_t *image, int16_t w, int16_t h){
+void ST7735_DrawBitmap(int16_t x, int16_t y, const uint8_t *image, int16_t w, int16_t h){
+  uint16_t bgr16;
   int16_t skipC = 0;                      // non-zero if columns need to be skipped due to clipping
   int16_t originalWidth = w;              // save this value; even if not all columns fit on the screen, the image is still this width in ROM
   int i = w*(h - 1);
@@ -967,16 +984,18 @@ void ST7735_DrawBitmap(int16_t x, int16_t y, const uint16_t *image, int16_t w, i
 
   for(y=0; y<h; y=y+1){
     for(x=0; x<w; x=x+1){
+      bgr16 = ST7735_Convert(image[i]);
                                         // send the top 8 bits
-      writedata((uint8_t)(image[i] >> 8));
+      writedata((uint8_t)(bgr16 >> 8));
                                         // send the bottom 8 bits
-      writedata((uint8_t)image[i]);
+      writedata((uint8_t)bgr16);
       i = i + 1;                        // go to the next pixel
     }
     i = i + skipC;
     i = i - 2*originalWidth;
   }
 }
+
 
 
 //------------ST7735_DrawCharS------------

@@ -22,34 +22,72 @@
  http://users.ece.utexas.edu/~valvano/
  */
 #include <stdint.h>
-
+#include "DAC.h"
+#include "Sound.h"
 #include "tm4c123gh6pm.h"
 
-void (*PeriodicTask0)(void);   // user function
+//void (*PeriodicTask0)(void);   // user function
+static uint8_t const *soundPt;
+static uint8_t const *soundPtrepeat;
+static uint8_t const *arrSize;          // end of sound array pointer
+static uint32_t pd;
+volatile uint8_t repeat;
+
+extern uint8_t laser[];
 
 // ***************** Timer0_Init ****************
 // Activate TIMER0 interrupts to run user task periodically
 // Inputs:  task is a pointer to a user function
 //          period in units (1/clockfreq)
 // Outputs: none
-void Timer0_Init(void(*task)(void), uint32_t period){
+void Timer0_Init(/*void(*task)(void),*/ uint32_t period){
+  repeat = 0;
   SYSCTL_RCGCTIMER_R |= 0x01;   // 0) activate TIMER0
-  PeriodicTask0 = task;          // user function
+  //PeriodicTask0 = task;          // user function
   TIMER0_CTL_R = 0x00000000;    // 1) disable TIMER0A during setup
   TIMER0_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
   TIMER0_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
-  TIMER0_TAILR_R = period-1;    // 4) reload value
+  TIMER0_TAILR_R = period;    // 4) reload value
+  pd = period;
   TIMER0_TAPR_R = 0;            // 5) bus clock resolution
   TIMER0_ICR_R = 0x00000001;    // 6) clear TIMER0A timeout flag
   TIMER0_IMR_R = 0x00000001;    // 7) arm timeout interrupt
-  NVIC_PRI4_R = (NVIC_PRI4_R&0x00FFFFFF)|0x80000000; // 8) priority 4
+  NVIC_PRI4_R = (NVIC_PRI4_R&0x00FFFFFF)|0x00000000; // 8) priority 0
 // interrupts enabled in the main program after all devices initialized
 // vector number 35, interrupt number 19
   NVIC_EN0_R = 1<<19;           // 9) enable IRQ 19 in NVIC
-  TIMER0_CTL_R = 0x00000001;    // 10) enable TIMER0A
+  //TIMER0_CTL_R = 0x00000001;    // 10) enable TIMER0A
+}
+
+// ***** Timer0_SetSound *****
+// Enables TIMER0A and sets pointer to sound array
+// Inputs: pointer to sound array, size of array
+// Outputs: none
+void Timer0A_SetSound(const uint8_t *pt, uint32_t size){
+  TIMER0_TAILR_R = pd;
+  if(pt == &laser[0]){
+    repeat = 1;
+  }
+  else{
+    repeat = 0;
+  }
+  TIMER0_CTL_R = 0x00000001;    // enable TIMER0A
+  soundPt = pt;                 // set ptr to sound effect array
+  soundPtrepeat = pt;
+  arrSize = size+soundPt;       // set to size of sound effect array
 }
 
 void Timer0A_Handler(void){
-  TIMER0_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER0A timeout
-  (*PeriodicTask0)();                // execute user task
+  TIMER0_ICR_R = TIMER_ICR_TATOCINT;    // acknowledge TIMER0A timeout
+  //(*PeriodicTask0)();                 // execute user task
+  DAC_Out(*soundPt);            // output value in array
+  soundPt++;                    // move to next value in array
+  if(repeat == 1){
+    if(soundPt == arrSize){
+      soundPt = soundPtrepeat;
+    }
+  }
+  else if(soundPt == arrSize){
+    TIMER0_CTL_R = 0x00000000;  // disable TIMER0A if at end of array
+  }
 }

@@ -20,7 +20,8 @@
  For more information about my classes, my research, and my books, see
  http://users.ece.utexas.edu/~valvano/
  */
-
+ 
+#include <stdint.h>
 #ifndef __TIMER0INTS_H__ // do not include more than once
 #define __TIMER0INTS_H__
 
@@ -29,6 +30,12 @@
 // Inputs:  task is a pointer to a user function
 //          period in units (1/clockfreq)
 // Outputs: none
-void Timer0_Init(void(*task)(void), uint32_t period);
+void Timer0_Init(/*void(*task)(void),*/ uint32_t period);
+
+// ***** Timer0_SetSound *****
+// Enables TIMER0A and sets pointer to sound array
+// Inputs: pointer to sound array, size of array
+// Outputs: none
+void Timer0A_SetSound(uint8_t const *pt, uint32_t size);
 
 #endif // __TIMER2INTS_H__

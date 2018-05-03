@@ -1,0 +1,11 @@
+.\switch.o: Switch.c
+.\switch.o: D:\Sean\Documents\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\switch.o: ../inc/tm4c123gh6pm.h
+.\switch.o: ST7735.h
+.\switch.o: Buffer.h
+.\switch.o: tm4c123gh6pm.h
+.\switch.o: PLL.h
+.\switch.o: TExaS.h
+.\switch.o: PLL.h
+.\switch.o: ADC.h
+.\switch.o: Sound.h

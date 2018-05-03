@@ -1,0 +1,17 @@
+.\airkatz.o: AirKatz.c
+.\airkatz.o: D:\Sean\Documents\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\airkatz.o: tm4c123gh6pm.h
+.\airkatz.o: ST7735.h
+.\airkatz.o: PLL.h
+.\airkatz.o: TExaS.h
+.\airkatz.o: Random.h
+.\airkatz.o: PLL.h
+.\airkatz.o: ADC.h
+.\airkatz.o: Sound.h
+.\airkatz.o: Buffer.h
+.\airkatz.o: PLL.h
+.\airkatz.o: TExaS.h
+.\airkatz.o: PLL.h
+.\airkatz.o: ADC.h
+.\airkatz.o: Sound.h
+.\airkatz.o: UART.h

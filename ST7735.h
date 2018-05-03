@@ -163,6 +163,10 @@ uint16_t ST7735_Color565(uint8_t r, uint8_t g, uint8_t b);
 // Output: 16-bit color in format R, G, B
 uint16_t ST7735_SwapColor(uint16_t x) ;
 
+// ST_Convert
+// turn 8bit bgr into 16 bit bgr
+uint16_t ST7735_Convert(uint8_t color);
+
 
 //------------ST7735_DrawBitmap------------
 // Displays a 16-bit color BMP image.  A bitmap file that is created
@@ -183,7 +187,7 @@ uint16_t ST7735_SwapColor(uint16_t x) ;
 //        h     number of pixels tall
 // Output: none
 // Must be less than or equal to 128 pixels wide by 160 pixels high
-void ST7735_DrawBitmap(int16_t x, int16_t y, const uint16_t *image, int16_t w, int16_t h);
+void ST7735_DrawBitmap(int16_t x, int16_t y, const uint8_t *image, int16_t w, int16_t h);
 
 //------------ST7735_DrawCharS------------
 // Simple character draw function.  This is the same function from

@@ -25,9 +25,47 @@
 ; Output: none
 ; Invariables: This function must not permanently modify registers R4 to R11
 LCD_OutDec
-
-
-      BX  LR
+;; --UUU-- Complete this (copy from Lab7-8)
+cnt EQU 0
+fp  RN  11
+    PUSH {R4-R8, LR}
+    SUB SP, #4
+    MOV fp, SP
+    MOV R4, #10
+    STRB R4, [SP, #cnt]
+    LDRB R5, [SP, #cnt]
+rloopDec
+    SUB R4, #1
+    UDIV R6, R0, R5
+    MUL R7, R6, R5
+    SUB R7, R0, R7
+    STRB R7, [SP, #-4]
+    SUB SP, #4
+    MOV R0, R6
+    CMP R4, #0
+    BNE rloopDec
+fdigitDec
+    LDRB R0, [SP]
+    LDRB R6,[SP, #4]
+    CMP R6, #10
+    BEQ printDec
+    ADD SP, #4
+    CMP R0, #0
+    BEQ fdigitDec
+    SUB SP, #4
+ploopDec
+    LDRB R0, [SP]
+    CMP R0, #10
+    BEQ retDec
+printDec
+    ADD R0, #0x30
+    BL  ST7735_OutChar
+    ADD SP, #4
+    B   ploopDec
+retDec
+    ADD SP, #4
+    POP {R4-R8, LR}
+    BX  LR
 ;* * * * * * * * End of LCD_OutDec * * * * * * * *
 
 ; -----------------------LCD _OutFix----------------------
@@ -43,11 +81,67 @@ LCD_OutDec
 ;       R0>9999, then output "*.*** "
 ; Invariables: This function must not permanently modify registers R4 to R11
 LCD_OutFix
-
-     BX   LR
- 
-     ALIGN
+;; --UUU-- Complete this (copy from Lab7-8)
+    PUSH {R4-R8, LR}
+    SUB SP, #4
+    MOV R4, #9999
+    CMP R0, R4
+    BHI overflowFix
+    MOV fp, SP
+    MOV R4, #10
+    STRB R4, [SP, #cnt]
+    LDRB R5, [SP, #cnt]
+rloopFix
+    SUB R4, #1
+    UDIV R6, R0, R5
+    MUL R7, R6, R5
+    SUB R7, R0, R7
+    STRB R7, [SP, #-4]
+    SUB SP, #4
+    MOV R0, R6
+    CMP R4, #0
+    BNE rloopFix
+fdigitFix
+    LDRB R0, [SP]
+    LDRB R6,[SP, #4*4]
+    CMP R6, #10
+    BEQ printpoint
+    ADD SP, #4
+    CMP R0, #0
+    BEQ fdigitFix
+    SUB SP, #4
+ploopFix
+    LDRB R0, [SP]
+    CMP R0, #10
+    BEQ retFix
+printFix
+    ADD R0, #0x30
+    BL  ST7735_OutChar
+    ADD SP, #4
+    B   ploopFix
+printpoint
+    ADD R0, #0x30
+    BL  ST7735_OutChar
+    MOV R0, #0x2E
+    BL  ST7735_OutChar
+    ADD SP, #4
+    B   ploopFix
+overflowFix
+    MOV R0, #0x2A
+    BL  ST7735_OutChar
+    MOV R0, #0x2E
+    BL  ST7735_OutChar
+    MOV R0, #0x2A
+    BL  ST7735_OutChar
+    MOV R0, #0x2A
+    BL  ST7735_OutChar
+    MOV R0, #0x2A
+    BL  ST7735_OutChar
+retFix
+    ADD SP, #4
+    POP {R4-R8, LR}
+    BX   LR
 ;* * * * * * * * End of LCD_OutFix * * * * * * * *
 
-     ALIGN                           ; make sure the end of this section is aligned
-     END                             ; end of file
+    ALIGN                           ; make sure the end of this section is aligned
+    END                             ; end of file
